@@ -4,6 +4,7 @@ var usermodule = require("../module/UserModule");
 var bookmodule = require("../module/BookModule");
 var fileusermodule = require("../module/fileUserModule");
 var userbookModule = require('../module/fileBookModule');
+var userdbmodule=require("../module/DBUsers")
 
 
 //----------------------------------user--------------------------------
@@ -34,3 +35,12 @@ router.get("/file/book/:userid",userbookModule.getUserBookData);
 router.post("/file/book/:userid/:bookid",userbookModule.checkUserBookExist,userbookModule.addUserBook);
 router.put("/file/book/:userid/:bookid",userbookModule.checkUserBookPresence,userbookModule.updateUserBook);
 router.delete("/file/book/:userid/:bookid",userbookModule.checkUserBookPresence,userbookModule.deleteUserBook);
+
+
+//---------------------------------------------MONGODB users--------------------------------------------
+
+router.get("/userdb",userdbmodule.findUsers,userdbmodule.getUserDetails);
+router.post("/userdb/add",userdbmodule.addUserDetails);
+router.put("/userdb/update/:id",userdbmodule.checkuserExist,userdbmodule.updateUserDetails);
+router.patch("/userdb/update/:id",userdbmodule.checkuserExist,userdbmodule.patchupdateUserDetails);
+router.delete("/userdb/delete/:id",userdbmodule.checkuserExist,userdbmodule.deleteUserDetails);
