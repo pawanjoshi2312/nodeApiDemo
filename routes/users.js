@@ -39,7 +39,7 @@ router.delete("/file/book/:userid/:bookid",userbookModule.checkUserBookPresence,
 
 //---------------------------------------------MONGODB users--------------------------------------------
 
-router.get("/userdb",userdbmodule.findUsers,userdbmodule.getUserDetails);
+router.get("/userdb",userdbmodule.getUserDetails);
 router.post("/userdb/add",userdbmodule.addUserDetails);
 router.put("/userdb/update/:id",userdbmodule.checkuserExist,userdbmodule.updateUserDetails);
 router.patch("/userdb/update/:id",userdbmodule.checkuserExist,userdbmodule.patchupdateUserDetails);

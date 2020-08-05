@@ -18,9 +18,6 @@ function findUsers(req,res,next){
         if(error){
            return res.status(500).send("internal server error");
         }
-        if(req.query.age<0){
-            req.query.age=Math.abs(req.query.age);
-        }
         
         if(data===null){
             return res.status(404).send("not found");
@@ -30,8 +27,14 @@ function findUsers(req,res,next){
 }
 
 function getUserDetails(req, res, next) {
-    let query=req.query;
-    userdata.find(query).limit(2).exec(function (error, data) {
+    let query=req.query.query;
+    let sort=req.query.sort;
+    query=JSON.parse(query);
+    let limitvalue=parseInt(req.query.limit);
+    if(req.query.age<0){
+        req.query.age=(Math.abs(req.query.age)).toString();
+    }
+    userdata.find(query).limit(limitvalue).sort(sort).exec(function (error, data) {
         if (error) throw error;
         return res.status(200).send(data);
     });
@@ -74,7 +77,7 @@ function patchupdateUserDetails(req, res, next) {
     });
     
 }
-
+ 
 function deleteUserDetails(req, res, next) {
     let userid = req.params.id;
     userdata.findByIdAndDelete(userid,function(error){
