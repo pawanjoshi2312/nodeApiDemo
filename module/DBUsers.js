@@ -44,7 +44,6 @@ function getUserDetails(req, res, next) {
 async function addUserDetails(req, res, next) {
     let userdetails = req.body;
     let user = new userdata(userdetails);
-    console.log(user);
     let response = await user.save();
     res.status(200).send(`user ${response} added`);
     res.end();
