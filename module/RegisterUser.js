@@ -1,18 +1,19 @@
-const express = require("express");
 const userdata = require("../models/registerUserSchema");
-var session = require('express-session');
+var bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const saltround = 10;
 
 function checksession(req, res, next) {
-   
-    if (session.email) {
+
+    if (req.session.email) {
         next();
     } else {
-        res.status(404).send("log in first");
+        return res.status(404).send("log in first");
     }
 }
 
 function findUserInfo(req, res, next) {
-   
+
     let useremail = req.body.email;
     userdata.find({
         "email": useremail
@@ -26,51 +27,88 @@ function findUserInfo(req, res, next) {
     });
 }
 
+function passwordHashing(req,res,next){
+    console.log("in passwordHashing");
+    bcrypt.hash(req.body.password, saltround, function (error, hash) {
 
+        if (error) return res.status(400).send({
+            message: error
+        });
+        req.body.password=hash;
+       
+        next();
+    });
+}
 
-async function registerUserInfo(req, res, ) {
-    
-    let userdetails = req.body;
-    let user = new userdata(userdetails);
-    let response = await user.save();
-    res.status(200).send(`user ${response} added`);
-    res.end();
+function registerUserInfo(req, res) {
 
+        let userdetails = req.body;
+        console.log(userdetails);
+        var user = new userdata(userdetails);
+        user.save(function (error, response) {
+            if (error) {
+                return res.status(422).send({
+                    message: error
+                });
+            }
+            res.status(200).send(`user ${response} added`);
+            res.end();
+        
+    });
 }
 
 function loginUser(req, res, next) {
-    
+
     let email = req.body.email;
     let password = req.body.password;
+    let privatekey="optimusprime";
+   
+    userdata.findOne({
+        "email": email
+    }).exec(async function (error, data) {
+            if (error) {
+                return res.status(500).send("internal server error");
+            }
+           
+            if (data) {
+                var dbpassword = data.password;
+                var compairedpassword= await bcrypt.compare(password, dbpassword);
+                console.log("compair",compairedpassword);
+                if (compairedpassword) {
+                    req.session.email = email;
+                    var token=jwt.sign({"email":email,"password":password},privatekey,{expiresIn:"120s"});
+                    req.session.save();
+                    console.log(req.headers['authorization']=token);
 
-    userdata.find({
-        "email": email,
-        "password": password
-    }).exec(function (error, data) {
-        if (error) {
-            return res.status(500).send("internal server error");
-        }
-        if (data.length > 0) {
-            session.email = email
-            res.status(200).send("log in successfull");
-            return;
-        } else {
-            return res.status(400).send("not found");
-        }
+                    return res.status(200).send("log in successfull");
+                }
+                else{
+                    return res.status(401).send("invalid password");
+                }
+            }
+            else{
+                return res.status(404).send("not found");
+            }
     });
 }
 
+
 function updateUserinfo(req, res) {
 
-    let userdetails = req.body;
-    userdata.updateOne({
-        "email": session.email
-    }, userdetails, function (error, data) {
-        if (error) {
-            console.log(error);
-        }
-        return res.status(200).send(`user updated on id:${session.email}`);
-    });
+        let userdetails = req.body;
+        
+        console.log(req.body.password);
+        userdata.updateOne({
+            "email": req.session.email
+        }, userdetails, function (error, data) {
+            if (error) {
+                console.log(error);
+            }
+            return res.status(200).send(`user updated on id:${req.session.email}`);
+        });
+
+
+
 }
 
 function deleteUserinfo(req, res) {
@@ -91,5 +129,7 @@ module.exports = {
     updateUserinfo,
     loginUser,
     deleteUserinfo,
-    checksession
+    checksession,
+    passwordHashing
+
 };

@@ -11,6 +11,7 @@ var usersRouter = require('./routes/users');
 var registerRouter=require('./routes/register')
 
 
+
 var app = express();
 mongoose.connect('mongodb://localhost/homedb',{ useNewUrlParser: true ,useUnifiedTopology: true});
 const db = mongoose.connection;
@@ -32,7 +33,7 @@ app.use(session({
   secret: 'optimus prime',
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: true }
+  cookie: { secure: false }
 }))
 
 

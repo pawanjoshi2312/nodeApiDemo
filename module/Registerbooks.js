@@ -1,7 +1,4 @@
 const userdata = require("../models/bookSchema")
-var session = require("express-session");
-
-
 
 function findbookInfo(req, res, next) {
     
