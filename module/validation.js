@@ -1,23 +1,32 @@
 const userdata = require("../models/registerUserSchema");
+const validemail = require("email-validator");
 
 const jwt = require('jsonwebtoken');
 
 const validatingUserData = (req, res, next) => {
     if (!(req.body.username && req.body.email && req.body.password)) {
 
-        res.send(400, {
-            message: "Invalid data"
-        });
+        return res.status(400).send("Invalid data");
+
+    }
+    if (!(validemail.validate(req.body.email))) {
+        return res.status(400).send("Invalid email");
     } else {
         next()
     }
 }
 
 const validatingloginData = (req, res, next) => {
+    console.log("inside validation");
     if (!(req.body.email && req.body.password)) {
         res.send(400, {
             message: "Please enter an valid email & password for login"
         });
+
+    }
+    console.log(req.body.email);
+    if (!(validemail.validate(req.body.email))) {
+        return res.status(400).send("Invalid email");
     } else {
         next()
     }
@@ -36,7 +45,7 @@ const authenticateToken = (req, res, next) => {
                 message: error
             })
         }
-       next();
+        next();
     });
 }
 

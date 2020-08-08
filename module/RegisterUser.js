@@ -43,6 +43,7 @@ function passwordHashing(req,res,next){
 function registerUserInfo(req, res) {
 
         let userdetails = req.body;
+        req.body.email=req.body.email.toLowerCase();
         console.log(userdetails);
         var user = new userdata(userdetails);
         user.save(function (error, response) {
